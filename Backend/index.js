@@ -1,51 +1,63 @@
 const express = require("express");
 const connectionToDatabase = require("./db");
-const app = express();
-app.use(express.json());
 const axios = require("axios");
 const UserModel = require("./Model/UserModel");
+const cors = require("cors");
 require("dotenv").config();
+
 const PORT = process.env.PORT;
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+// Connect to the database
+const connectToDatabase = async () => {
+  try {
+    await connectionToDatabase;
+    console.log("Connected to the database on port " + PORT);
+  } catch (error) {
+    console.log("Error connecting to the database");
+  }
+};
+
+//  route for getting the data from the database
 
 app.get("/users", async (req, res) => {
   try {
-    const Users = await UserModel.find({});
-    res.status(200).json(Users);
+    const users = await UserModel.find({});
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-(async () => {
-  try {
-    app.listen(async () => {
-      try {
-        await connectionToDatabase;
-        console.log("Connected to the database on port " + PORT);
-      } catch (error) {
-        console.log("Error connecting to the database");
-      }
-    });
+// Function to fetch data and populate the database
 
+const fetchData = async () => {
+  try {
     let response = await axios("https://jsonplaceholder.typicode.com/users");
     const allUsers = response.data;
 
-    let exisitingUsers = await UserModel.find({});
+    let existingUsers = await UserModel.find({});
 
-    if (exisitingUsers.length === 0) {
+    if (existingUsers.length === 0) {
       await UserModel.create(allUsers);
+      console.log("Database populated with initial data");
     }
-    app.listen(async () => {
-      try {
-        await connectionToDatabase;
-        console.log("Connected to the database on port " + PORT);
-      } catch (error) {
-        console.log("Error connecting to the database");
-      }
-    });
   } catch (error) {
     console.error(error.message);
   }
-})();
+};
 
-// listening on port
+// Start the server
+const startServer = async () => {
+  await connectToDatabase();
+  await fetchData();
+  app.listen(PORT, () => {
+    console.log("Server is running on port " + PORT);
+  });
+};
+
+// Start the server
+startServer();

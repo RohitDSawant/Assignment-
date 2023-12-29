@@ -12,11 +12,12 @@ const UsersTable = () => {
 
   useEffect(() => {
     try {
-      axios.get("https://jsonplaceholder.typicode.com/users")
-      .then((res) => {
+      axios.get("http://localhost:8081/users").then((res) => {
+        console.log(res);
         setUsers(res.data);
       });
     } catch (error) {
+      console.log(error.message);
       return error.message;
     }
   }, []);
@@ -40,7 +41,6 @@ const UsersTable = () => {
               <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>City</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Website</TableCell>
             </TableRow>
@@ -56,9 +56,6 @@ const UsersTable = () => {
                 </TableCell>
                 <TableCell sx={{ fontSize: "small", fontWeight: 500 }}>
                   {ele.username}
-                </TableCell>
-                <TableCell sx={{ fontSize: "small", fontWeight: 500 }}>
-                  {ele.address.city}
                 </TableCell>
                 <TableCell sx={{ fontSize: "small", fontWeight: 500 }}>
                   {ele.email}
